@@ -7,7 +7,9 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Oleo_Script } from 'next/font/google';
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 const oleo = Oleo_Script({
   weight: ['400'],
@@ -20,6 +22,14 @@ const LandingPage = () => {
   let bubble1Ref = useRef<HTMLDivElement>(null);
   let bubble2Ref = useRef<HTMLDivElement>(null);
   let bubble3Ref = useRef<HTMLDivElement>(null);
+
+  // Add this new state
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   // Function to move bubbles to random positions
   useEffect(() => {
@@ -224,7 +234,7 @@ const LandingPage = () => {
           
         }}>
           <Typography variant="h4" component="h2" style={{ marginBottom: '24px', color: '#1976d2' }}>
-            <span className={oleo.className}>Welcome</span>
+            <span className={`${oleo.className} text-black text-5xl`}>Welcome</span>
           </Typography>
       
           <div style={{ position: 'relative', marginBottom: '30px', textAlign: 'left' }}>
@@ -249,6 +259,7 @@ const LandingPage = () => {
                 fontSize: '16px',
                 transition: 'border 0.3s ease',
                 outline: 'none',
+                color: 'black'
                 
               }}
             />
@@ -262,25 +273,112 @@ const LandingPage = () => {
               fontSize: '14px',
               color: '#1976d2',
               pointerEvents: 'none',
-              transition: 'all 0.2s ease-out'
+              transition: 'all 0.2s ease-out',
+              
             }}>
               Password
             </label>
             <input 
-              type="password" 
+              type={showPassword ? "text" : "password"} 
               style={{ 
                 width: '100%',
                 padding: '30px 12px 10px 12px',
                 border: '2px solid #e0e0e0',
                 borderRadius: '8px',
                 fontSize: '16px',
-                transition: 'border 0.3s ease',
+                transition: 'border 0.3s ease, box-shadow 0.3s ease',
                 outline: 'none',
-    
-                
+                color: 'black',
+                paddingRight: '40px' // Add space for the toggle button
               }}
               className='focus:border-blue-500'
             />
+            
+            {/* Enhanced animated password visibility toggle */}
+            <div 
+              onClick={togglePasswordVisibility}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: showPassword ? '#1976d2' : '#757575',
+                transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                width: '30px',
+                height: '30px',
+                borderRadius: '50%',
+                background: showPassword ? 'rgba(25, 118, 210, 0.1)' : 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-50%) scale(1.2)';
+                e.currentTarget.style.background = showPassword 
+                  ? 'rgba(25, 118, 210, 0.15)' 
+                  : 'rgba(0, 0, 0, 0.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+                e.currentTarget.style.background = showPassword 
+                  ? 'rgba(25, 118, 210, 0.1)' 
+                  : 'transparent';
+              }}
+            >
+              {showPassword ? (
+                <VisibilityOffIcon 
+                  style={{ 
+                    fontSize: '20px',
+                    transition: 'all 0.3s ease',
+                    transform: 'rotate(0deg)'
+                  }} 
+                />
+              ) : (
+                <VisibilityIcon 
+                  style={{ 
+                    fontSize: '20px',
+                    transition: 'all 0.3s ease',
+                    transform: 'rotate(0deg)'
+                  }} 
+                />
+              )}
+              
+              {/* Add a ripple effect on click */}
+              <div 
+                style={{
+                  position: 'absolute',
+                  borderRadius: '50%',
+                  background: 'rgba(25, 118, 210, 0.3)',
+                  width: '30px',
+                  height: '30px',
+                  transform: 'scale(0)',
+                  opacity: 0,
+                  transition: 'all 0.5s ease-out',
+                  pointerEvents: 'none'
+                }}
+                className="ripple"
+                ref={el => {
+                  if (el) {
+                    el.addEventListener('animationend', () => {
+                      el.style.transform = 'scale(0)';
+                      el.style.opacity = '0';
+                    });
+                  }
+                }}
+                onClick={(e) => {
+                  const ripple = e.currentTarget;
+                  ripple.style.transform = 'scale(2.5)';
+                  ripple.style.opacity = '1';
+                  
+                  // Reset after animation
+                  setTimeout(() => {
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.opacity = '0';
+                  }, 500);
+                }}
+              />
+            </div>
           </div>
       
           <Button 
@@ -294,12 +392,40 @@ const LandingPage = () => {
               borderRadius: '8px',
               background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
               boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
-              transition: 'transform 0.2s ease',
-              
+              transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              position: 'relative',
+              overflow: 'hidden'
             }}
-            className='hover:scale-1.03'
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.03)';
+              e.currentTarget.style.boxShadow = '0 6px 10px rgba(33, 203, 243, .4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 3px 5px 2px rgba(33, 203, 243, .3)';
+            }}
           >
-            Sign In
+            <span style={{ position: 'relative', zIndex: 2 }}>Sign In</span>
+            <div 
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(45deg, #21CBF3 30%, #2196F3 90%)',
+                opacity: 0,
+                transition: 'opacity 0.5s ease',
+                zIndex: 1
+              }}
+              className="button-background-shift"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '1';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '0';
+              }}
+            />
           </Button>
           
           <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0' }}>
@@ -322,7 +448,7 @@ const LandingPage = () => {
               transition: 'background-color 0.3s ease'
             }}
             component={Link}
-            href="/register"
+            href="/patient"
           >
             Create Account
           </Button>
