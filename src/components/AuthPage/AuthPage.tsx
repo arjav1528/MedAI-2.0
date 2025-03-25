@@ -13,6 +13,8 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '@/lib/AuthContext';
 import { useRouter } from 'next/navigation';
 import GoogleIcon from '@mui/icons-material/Google';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, provider } from '@/lib/firebase';
 
 const oleo = Oleo_Script({
   weight: ['400'],
@@ -21,17 +23,17 @@ const oleo = Oleo_Script({
 });
 
 const AuthPage = () => {
-  console.log("Env variable", process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
+  // console.log("Env variable", process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
   // Get auth context and router
-  const { user, loading, login } = useAuth();
-  const router = useRouter();
+  
+  
+  
+  // Add states for button loading and error
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   
   // Redirect if user is already logged in
-  useEffect(() => {
-    if (user && !loading) {
-      router.push('/patient');
-    }
-  }, [user, loading, router]);
+  
 
   // Refs for the bubbles
   let bubble1Ref = useRef<HTMLDivElement>(null);
@@ -85,6 +87,29 @@ const AuthPage = () => {
       clearInterval(interval3);
     };
   }, []);
+
+  // Handle Google sign-in with error handling
+  const handleGoogleSignIn = async () => {
+    try {
+      console.log("Attempting Google sign in...");
+
+      setIsAuthLoading(true);
+      setAuthError(null);
+
+      const result = await signInWithPopup(auth,provider);
+      console.log(result);
+      
+    } catch (error) {
+      console.error("Login error:", error);
+      if (error instanceof Error) {
+        setAuthError(error.message);
+      } else {
+        setAuthError("Failed to authenticate. Please check your connection and try again.");
+      }
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -255,13 +280,33 @@ const AuthPage = () => {
             Sign in with your Google account to access MedAI
           </Typography>
           
+          {/* Show error message if there is an error */}
+          {authError && (
+            <div style={{ 
+              marginBottom: '16px', 
+              padding: '12px', 
+              backgroundColor: '#ffebee', 
+              borderRadius: '6px',
+              borderLeft: '4px solid #f44336',
+              textAlign: 'left'
+            }}>
+              <Typography variant="body2" style={{ color: '#d32f2f' }}>
+                <strong>Error:</strong> {authError}
+              </Typography>
+              <Typography variant="body2" style={{ color: '#d32f2f', marginTop: '8px' }}>
+                Please make sure Firebase is properly configured. Check your environment variables.
+              </Typography>
+            </div>
+          )}
+          
           {/* Google Sign In Button - Made more prominent */}
           <Button 
             variant="contained" 
             color="primary"
             size="large" 
             fullWidth
-            onClick={login}
+            disabled={isAuthLoading}
+            onClick={handleGoogleSignIn}
             style={{ 
               padding: '14px 0',
               borderRadius: '8px', 
@@ -275,22 +320,49 @@ const AuthPage = () => {
               border: '1px solid #ddd',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               transition: 'all 0.3s ease',
+              opacity: isAuthLoading ? 0.7 : 1,
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#f8f8f8';
-              e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
+              if (!isAuthLoading) {
+                e.currentTarget.style.backgroundColor = '#f8f8f8';
+                e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
+              }
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = '#fff';
               e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
             }}
           >
-            <GoogleIcon style={{ 
-              color: '#4285F4',  // Google's blue color
-              fontSize: '24px'
-            }} />
-            <span style={{ fontWeight: 500 }}>Sign in with Google</span>
+            {isAuthLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="spinner" style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '2px solid rgba(0, 0, 0, 0.1)',
+                  borderRadius: '50%',
+                  borderTop: '2px solid #4285F4',
+                  animation: 'spin 1s linear infinite'
+                }}></div>
+                <span>Signing in...</span>
+              </div>
+            ) : (
+              <>
+                <GoogleIcon style={{ 
+                  color: '#4285F4',  // Google's blue color
+                  fontSize: '24px'
+                }} />
+                <span style={{ fontWeight: 500 }}>Sign in with Google</span>
+              </>
+            )}
           </Button>
+          
+          {/* Add CSS for spinner animation */}
+          <style jsx>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
           
           {/* Simplified Terms */}
           <Typography variant="caption" style={{ color: 'rgba(0, 0, 0, 0.6)', display: 'block', marginTop: '24px' }}>

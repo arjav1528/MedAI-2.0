@@ -7,9 +7,7 @@ import { AuthProvider } from '@/lib/AuthContext';
 export default function Home() {
   return(
     <>
-      <AuthProvider>
-        <HomePagePatient />
-      </AuthProvider>
+      <HomePagePatient />
     </>
   )
 }
