@@ -10,7 +10,6 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { useAuth } from '@/lib/AuthContext';
 import { useRouter } from 'next/navigation';
 import GoogleIcon from '@mui/icons-material/Google';
 import { signInWithPopup } from 'firebase/auth';

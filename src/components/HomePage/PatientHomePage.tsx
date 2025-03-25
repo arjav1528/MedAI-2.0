@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@/lib/AuthContext";
 import { Oleo_Script } from "next/font/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -27,33 +26,10 @@ export default function HomePagePatient() {
   const recognitionSymptoms = useRef<any>(null);
   const recognitionInfo = useRef<any>(null);
   
-  const { user, loading, login, logout } = useAuth();
   const router = useRouter();
 
   // Handle authentication redirect in useEffect
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth');
-    }
-  }, [user, loading, router]);
-
-  // Basic loading state
-  if (loading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  // If not logged in, show minimal UI while the redirect happens
-  if (!user) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center">
-        <p>Redirecting to login...</p>
-      </div>
-    );
-  }
+  
 
   useEffect(() => {
     // Animation trigger
