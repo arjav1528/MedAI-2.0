@@ -1,22 +1,17 @@
 
 
-export interface User{
+export interface WebUser{
     googleId: string;
     displayName: string;
     pfpUrl: string;
     email: string;
     role: string;
+    maxQueries: number;
+    queries: Query[];
 }
 
 
-export interface Notification{
-    id: string;
-    notif: string;
-    time: string;
-    read: boolean;
-    patientId: string;
-    clinicianId: string;
-}
+
 
 
 export interface Query{
