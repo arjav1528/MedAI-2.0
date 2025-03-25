@@ -1,4 +1,4 @@
-// components/LandingPage.tsx
+// components/AuthPage.tsx
 'use client'
 
 import { Box, Typography, Container, Grid, Button } from '@mui/material';
@@ -17,7 +17,7 @@ const oleo = Oleo_Script({
   display: 'swap',
 });
 
-const LandingPage = () => {
+const AuthPage = () => {
   // Refs for the bubbles
   let bubble1Ref = useRef<HTMLDivElement>(null);
   let bubble2Ref = useRef<HTMLDivElement>(null);
@@ -481,4 +481,4 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+export default AuthPage;

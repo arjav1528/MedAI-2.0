@@ -1,90 +1,112 @@
 "use client";
 
+import { Oleo_Script } from "next/font/google";
+import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import RootLayout from "../layout";
-import { toast,  ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+const oleo = Oleo_Script({
+    weight: ['400'],
+    subsets: ['latin'],
+    display: 'swap',
+  });
 
-export default function HomePage() {
+export default function HomePagePatient() {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   
-  // Add state for speech recognition
+  
+  // Speech recognition states
   const [isListeningSymptoms, setIsListeningSymptoms] = useState(false);
   const [isListeningInfo, setIsListeningInfo] = useState(false);
   const [symptoms, setSymptoms] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   
-  // References for the speech recognition objects
+  // References for speech recognition
   const recognitionSymptoms = useRef<any>(null);
   const recognitionInfo = useRef<any>(null);
 
-  
-
   useEffect(() => {
-    // Trigger animations after component mounts
+    // Animation trigger
     setIsLoaded(true);
     
-    // Initialize speech recognition if available in the browser
-    if (typeof window !== 'undefined' && 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    // Initialize speech recognition if available
+    if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       
-      // Setup for symptoms
-      recognitionSymptoms.current = new SpeechRecognition();
-      recognitionSymptoms.current.continuous = true;
-      recognitionSymptoms.current.interimResults = true;
-      
-      recognitionSymptoms.current.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0])
-          .map((result) => result.transcript)
-          .join('');
+      if (SpeechRecognition) {
+        // Setup for symptoms
+        recognitionSymptoms.current = new SpeechRecognition();
+        recognitionSymptoms.current.continuous = true;
+        recognitionSymptoms.current.interimResults = true;
+        recognitionSymptoms.current.lang = 'en-US';
         
-        setSymptoms(transcript);
-      };
-      
-      recognitionSymptoms.current.onerror = (event: any) => {
-        console.error('Speech recognition error', event.error);
-        setIsListeningSymptoms(false);
-      };
-      
-      // Setup for additional info
-      recognitionInfo.current = new SpeechRecognition();
-      recognitionInfo.current.continuous = true;
-      recognitionInfo.current.interimResults = true;
-      
-      recognitionInfo.current.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0])
-          .map((result) => result.transcript)
-          .join('');
+        recognitionSymptoms.current.onresult = (event: any) => {
+          const transcript = Array.from(event.results)
+            .map((result: any) => result[0])
+            .map((result) => result.transcript)
+            .join('');
+          
+          setSymptoms(transcript);
+        };
         
-        setAdditionalInfo(transcript);
-      };
-      
-      recognitionInfo.current.onerror = (event: any) => {
-        console.error('Speech recognition error', event.error);
-        setIsListeningInfo(false);
-      };
+        recognitionSymptoms.current.onerror = (event: any) => {
+          console.error('Speech recognition error', event.error);
+          setIsListeningSymptoms(false);
+        };
+        
+        // Setup for additional info
+        recognitionInfo.current = new SpeechRecognition();
+        recognitionInfo.current.continuous = true;
+        recognitionInfo.current.interimResults = true;
+        recognitionInfo.current.lang = 'en-US';
+        
+        recognitionInfo.current.onresult = (event: any) => {
+          const transcript = Array.from(event.results)
+            .map((result: any) => result[0])
+            .map((result) => result.transcript)
+            .join('');
+          
+          setAdditionalInfo(transcript);
+        };
+        
+        recognitionInfo.current.onerror = (event: any) => {
+          console.error('Speech recognition error', event.error);
+          setIsListeningInfo(false);
+        };
+      }
     }
     
     // Cleanup
     return () => {
       if (recognitionSymptoms.current) {
-        recognitionSymptoms.current.stop();
+        try {
+          recognitionSymptoms.current.stop();
+        } catch (error) {
+          // Ignore errors during cleanup
+        }
       }
       if (recognitionInfo.current) {
-        recognitionInfo.current.stop();
+        try {
+          recognitionInfo.current.stop();
+        } catch (error) {
+          // Ignore errors during cleanup
+        }
       }
     };
   }, []);
   
-  // Functions to toggle speech recognition
+  // Toggle speech recognition functions
   const toggleListeningSymptoms = () => {
     if (isListeningSymptoms) {
       recognitionSymptoms.current.stop();
     } else {
-      recognitionSymptoms.current.start();
+      try {
+        recognitionSymptoms.current.start();
+      } catch (error) {
+        console.error("Speech recognition error:", error);
+      }
     }
     setIsListeningSymptoms(!isListeningSymptoms);
   };
@@ -93,93 +115,75 @@ export default function HomePage() {
     if (isListeningInfo) {
       recognitionInfo.current.stop();
     } else {
-      recognitionInfo.current.start();
+      try {
+        recognitionInfo.current.start();
+      } catch (error) {
+        console.error("Speech recognition error:", error);
+      }
     }
     setIsListeningInfo(!isListeningInfo);
   };
 
-  // Mock user data for UI purposes
+  // Mock user data
   const mockUser = {
     name: "Alex"
   };
 
   return (
-    <RootLayout>
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
 
-    <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
-
-
-      {/* Desktop Navigation - hidden on mobile */}
-      <div className="hidden md:block bg-white shadow-sm fixed top-0 left-0 right-0 z-10">
+      {/* Responsive Navigation Bar - Small version with only logo and icons */}
+      <div className="bg-white shadow-sm fixed top-0 left-0 right-0 z-10">
+        {/* Navigation Container */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <div className="text-2xl font-bold text-blue-600 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                MedAI
-              </div>
+          {/* Logo and icons container - reduced height */}
+          <div className="flex justify-between items-center h-15">
+            {/* Logo */}
+            <div className="flex items-center my-auto">
+                <Link href={`/`}>
+                    <h1 className={`${oleo.className}`} style={{ fontSize: '40px', fontWeight: 'bold', marginBottom: '16px' }}>
+                        <span style={{ color: '#064579' }}>Med</span>
+                        <span style={{ color: '#50C878' }}>AI</span>
+                    </h1>
+                </Link>
             </div>
-            <nav className="flex space-x-8">
-              <a href="#" className="text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md font-medium transition-colors">Dashboard</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md font-medium transition-colors">History</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md font-medium transition-colors">Resources</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md font-medium transition-colors">Profile</a>
-            </nav>
+            
+            {/* Icons container */}
+            <div className="flex items-center space-x-3">
+              {/* Notification icon */}
+              
+              
+              {/* Profile icon */}
+              <button className="p-1 rounded-full text-gray-600 hover:text-blue-600 border border-gray-200 hover:border-blue-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile navigation - hidden on desktop */}
-      <div className="md:hidden bg-white shadow-sm fixed top-0 left-0 right-0 z-10">
-        <div className="px-4 py-2 flex justify-between items-center">
-          <div className="text-xl font-bold text-blue-600 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            MedAI
-          </div>
-          <button 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="text-gray-600 focus:outline-none"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-        
-        {/* Mobile menu dropdown */}
-        {isMobileMenuOpen && (
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 shadow-md">
-            <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-blue-600">Dashboard</a>
-            <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600">History</a>
-            <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600">Resources</a>
-            <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600">Profile</a>
-          </div>
-        )}
-      </div>
-
-      {/* Main Content - Adjusted for desktop and mobile */}
-      <div className="pt-16 md:pt-24 pb-10 min-h-screen bg-gray-50">
+      {/* Adjust the top padding in the main content to match smaller navbar */}
+      <div className="pt-20 md:pt-24 pb-10 min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="md:flex md:gap-6">
-            {/* Main content - now wider */}
+            {/* Main content column */}
             <div className="md:w-3/4 mx-auto">
-              {/* Enhanced gradient hello card */}
+              {/* Gradient hello card */}
               <div
-                className={`relative rounded-xl shadow-lg overflow-hidden p-8 md:p-10 mb-8 transition-all duration-700 transform ${
+                className={`relative rounded-xl shadow-lg overflow-hidden p-6 md:p-10 mb-8 transition-all duration-700 transform ${
                   isLoaded ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
                 }`}
                 style={{
@@ -188,7 +192,7 @@ export default function HomePage() {
               >
                 {/* Animated overlay patterns */}
                 <div className="absolute inset-0 opacity-20">
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent background-animate" 
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent animate-gradient-x" 
                     style={{backgroundSize: '200% 200%'}}></div>
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                   <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
@@ -198,22 +202,23 @@ export default function HomePage() {
                 <div className="absolute top-10 right-10 w-24 h-24 rounded-full bg-white/10 blur-xl"></div>
                 <div className="absolute bottom-5 left-5 w-16 h-16 rounded-full bg-white/10 blur-md"></div>
                 
-                {/* Content with proper contrast */}
+                {/* Content */}
                 <div className="relative z-10 text-white">
-                  <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-sm">
+                  <h1 className="text-2xl md:text-5xl font-bold mb-2 md:mb-4 drop-shadow-sm">
                     Hello, {mockUser.name}!
                   </h1>
-                  <p className="text-xl md:text-2xl opacity-90 drop-shadow-sm max-w-2xl">
+                  <p className="text-lg md:text-2xl opacity-90 drop-shadow-sm max-w-2xl">
                     How can I assist with your health today?
                   </p>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-md p-5 md:p-8 transition-all hover:shadow-lg">
-                <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+              {/* Health question form */}
+              <div className="bg-white rounded-xl shadow-md p-4 md:p-8 transition-all hover:shadow-lg">
+                <h2 className="text-lg md:text-2xl font-semibold text-gray-800 mb-4 md:mb-6 flex items-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 md:h-7 md:w-7 mr-3 text-blue-500 flex-shrink-0"
+                    className="h-5 w-5 md:h-7 md:w-7 mr-2 md:mr-3 text-blue-500 flex-shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -229,12 +234,12 @@ export default function HomePage() {
                 </h2>
                 
                 <div className="overflow-hidden">
-                  <div className="mt-2 max-w-2xl mx-auto"> {/* Kept narrower with max-w-2xl */}
+                  <div className="mt-2 max-w-2xl mx-auto">
                     <form className="space-y-4">
                       {/* Symptoms field */}
                       <div className="space-y-2">
                         <label htmlFor="symptoms" className="block text-sm font-medium text-gray-700">
-                          Enter your symptoms <span className="text-red-500">*</span>
+                          Enter your symptoms
                         </label>
                         <div className="relative">
                           <input 
@@ -244,12 +249,11 @@ export default function HomePage() {
                             onChange={(e) => setSymptoms(e.target.value)}
                             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-10 text-black"
                             placeholder="E.g., headache, fever, cough, etc."
-                            required
                           />
                           <button 
                             type="button"
                             onClick={toggleListeningSymptoms}
-                            className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-full ${isListeningSymptoms ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                            className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-full ${isListeningSymptoms ? 'bg-blue-100 text-blue-600 animate-pulse' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -257,8 +261,8 @@ export default function HomePage() {
                           </button>
                         </div>
                         {isListeningSymptoms && (
-                          <div className="text-xs text-red-500 animate-pulse flex items-center">
-                            <span className="inline-block h-2 w-2 rounded-full bg-red-500 mr-2"></span> 
+                          <div className="text-xs text-blue-500 animate-pulse flex items-center">
+                            <span className="inline-block h-2 w-2 rounded-full bg-blue-500 mr-2"></span> 
                             Listening... Speak your symptoms clearly
                           </div>
                         )}
@@ -269,24 +273,21 @@ export default function HomePage() {
                         <label htmlFor="temperature" className="block text-sm font-medium text-gray-700">
                           Body temperature (if applicable)
                         </label>
-                        <div className="flex items-center">
+                        <div className="flex flex-wrap items-center gap-2">
                           <input 
                             type="text" 
                             id="temperature"
-                            step="0.1"
-                            min="95"
-                            max="110"
-                            className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-black"
+                            className="w-20 md:w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-black"
                             placeholder="98.6"
                           />
                           <select 
-                            className="ml-2 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white text-black"
+                            className="px-2 md:px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white text-black"
                           >
-                            <option value="fahrenheit">°F (Fahrenheit)</option>
-                            <option value="celsius">°C (Celsius)</option>
+                            <option value="fahrenheit">°F</option>
+                            <option value="celsius">°C</option>
                           </select>
-                          <div className="ml-4 text-xs text-gray-500">
-                            Normal: 97.8°F - 99°F / 36.5°C - 37.2°C
+                          <div className="text-xs text-gray-500">
+                            Normal: 97.8°F-99°F / 36.5°C-37.2°C
                           </div>
                         </div>
                       </div>
@@ -294,7 +295,7 @@ export default function HomePage() {
                       {/* Duration field */}
                       <div className="space-y-2">
                         <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
-                          Since when are you facing symptom(s)? <span className="text-red-500">*</span>
+                          Since when are you facing symptom(s)?
                         </label>
                         <div className="flex flex-wrap gap-3">
                           <div className="inline-flex items-center">
@@ -367,7 +368,7 @@ export default function HomePage() {
                           <button 
                             type="button"
                             onClick={toggleListeningInfo}
-                            className={`absolute right-2 top-4 p-1.5 rounded-full ${isListeningInfo ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                            className={`absolute right-2 top-4 p-1.5 rounded-full ${isListeningInfo ? 'bg-blue-100 text-blue-600 animate-pulse' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -375,14 +376,14 @@ export default function HomePage() {
                           </button>
                         </div>
                         {isListeningInfo && (
-                          <div className="text-xs text-red-500 animate-pulse flex items-center">
-                            <span className="inline-block h-2 w-2 rounded-full bg-red-500 mr-2"></span> 
+                          <div className="text-xs text-blue-500 animate-pulse flex items-center">
+                            <span className="inline-block h-2 w-2 rounded-full bg-blue-500 mr-2"></span> 
                             Listening... Speak clearly about additional information
                           </div>
                         )}
                       </div>
                       
-                      {/* Submit button with improved toast handling */}
+                      {/* Submit button with toast handling */}
                       <div className="mt-6 flex justify-center">
                         <button 
                           type="submit"
@@ -393,21 +394,22 @@ export default function HomePage() {
                             
                             // Trim the symptoms to handle spaces-only input
                             const symptomsValue = symptoms.trim();
-                            console.log('Symptoms:', symptomsValue);
+                            
                             if(!symptomsValue) {
-                              toast.error('Please enter your symptoms before submitting');
+                              toast.error('Please enter your symptoms');
                               return;
                             }
                             
-                            // Check if symptoms is empty
-                            
+                            // Get the selected radio button value
+                            const selectedRadio = document.querySelector('input[name="duration"]:checked') as HTMLInputElement;
+                            const durationValue = selectedRadio ? selectedRadio.value : null;
                             
                             // Collect form data
                             const formData = {
                               symptoms: symptomsValue,
                               temperature: (document.getElementById('temperature') as HTMLInputElement)?.value || null,
                               temperatureUnit: (document.querySelector('select') as HTMLSelectElement)?.value || 'fahrenheit',
-                              duration: document.querySelector('input[name="duration"]:checked') || null,
+                              duration: durationValue,
                               additionalInfo: additionalInfo.trim()
                             };
                             
@@ -420,12 +422,11 @@ export default function HomePage() {
                             setSymptoms("");
                             setAdditionalInfo("");
                             
-                            // Optionally reset other form elements
+                            // Reset other form elements
                             if (document.getElementById('temperature') as HTMLInputElement) {
                               (document.getElementById('temperature') as HTMLInputElement).value = '';
                             }
                             
-                            const selectedRadio = document.querySelector('input[name="duration"]:checked') as HTMLInputElement;
                             if (selectedRadio) {
                               selectedRadio.checked = false;
                             }
@@ -441,10 +442,10 @@ export default function HomePage() {
                   </div>
                 </div>
                 
-                {/* Information about how it works - replaces the queries section */}
-                <div className="mt-12 max-w-3xl mx-auto">
+                {/* How It Works section */}
+                <div className="mt-10 md:mt-12 max-w-3xl mx-auto">
                   <h3 className="text-lg md:text-xl font-medium text-gray-800 mb-3">How It Works</h3>
-                  <div className="grid md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                     <div className="bg-blue-50 p-4 rounded-lg">
                       <div className="flex items-center mb-2">
                         <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold mr-2">1</div>
@@ -473,39 +474,39 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right column - Health Tips only */}
+            {/* Right column - Health Tip of the Day (hidden on mobile) */}
             <div className="hidden md:block md:w-1/4 mt-6 md:mt-0">
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
-                  Health Tips
+                  Health Tip of the Day
                 </h2>
-                <div className="space-y-4">
-                  <div className="rounded-lg overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" 
-                      alt="Healthy Food" 
-                      className="w-full h-40 object-cover"
-                    />
-                    <div className="p-3 bg-gray-50">
-                      <h3 className="font-medium text-gray-900">Balanced Nutrition</h3>
-                      <p className="text-sm text-gray-600 mt-1">Learn about essential nutrients for your daily diet</p>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-4">
-                    <h3 className="font-medium text-gray-900">Sleep Hygiene</h3>
-                    <p className="text-sm text-gray-600 mt-1">Improve your sleep quality with these expert tips</p>
-                    <a href="#" className="text-sm text-blue-600 mt-2 inline-block hover:underline">Read more →</a>
+                
+                <div className="rounded-lg overflow-hidden border border-blue-100">
+                  <div className="bg-blue-50 p-1 text-center">
+                    <span className="text-xs font-medium text-blue-600 uppercase tracking-wider">March 25</span>
                   </div>
                   
-                  <div className="border-t border-gray-200 pt-4">
-                    <h3 className="font-medium text-gray-900">Daily Exercise</h3>
-                    <p className="text-sm text-gray-600 mt-1">Simple exercises you can do at home</p>
-                    <a href="#" className="text-sm text-blue-600 mt-2 inline-block hover:underline">Read more →</a>
+                  <div className="p-4">
+                    <h3 className="font-medium text-gray-900 text-lg">Stay Hydrated</h3>
+                    <p className="text-gray-600 mt-2">
+                      Drinking adequate water daily helps maintain body temperature, lubricate joints, 
+                      and remove waste. Aim for 8 glasses (about 2 liters) of water daily, and 
+                      more during exercise or hot weather.
+                    </p>
+                    
+                    <div className="mt-4 flex items-center text-sm text-blue-600">
+                      
+                    </div>
                   </div>
+                </div>
+                
+                <div className="mt-4 text-center">
+                  <button className="text-sm text-blue-600 font-medium hover:text-blue-800 transition-colors flex items-center mx-auto">
+                    
+                  </button>
                 </div>
               </div>
             </div>
@@ -513,7 +514,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* SOS Button - Made responsive and properly fixed */}
+      {/* SOS Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-5 rounded-full shadow-lg transition-all hover:scale-105 hover:shadow-xl flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -522,6 +523,6 @@ export default function HomePage() {
           SOS
         </button>
       </div>
-    </RootLayout>
+    </>
   );
 }
