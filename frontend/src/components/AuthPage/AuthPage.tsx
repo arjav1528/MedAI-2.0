@@ -8,7 +8,10 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Oleo_Script } from 'next/font/google';
 import { useContext, useEffect, useRef, useState } from 'react';
 import GoogleIcon from '@mui/icons-material/Google';
-import { signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/AuthContext';
+import { auth } from '@/lib/firebase';
 
 const oleo = Oleo_Script({
   weight: ['400'],
@@ -17,11 +20,22 @@ const oleo = Oleo_Script({
 });
 
 const AuthPage = () => {
+  const router = useRouter();
+  const  { user } = useAuth();
+
+  useEffect(() => {
+    if(user){
+      if(user.role === "patient"){
+        router.push("/patient");
+      }
+      else{
+        router.push("/clinician");
+      }
+    }
+  },[user,router])
   
-  // Move the redirection logic to useEffect
   
   
-  // Add states for button loading and error
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   
@@ -80,6 +94,24 @@ const AuthPage = () => {
   const handleGoogleSignIn = async () => {
     try {
       console.log("Attempting Google sign in...");
+      setIsAuthLoading(true);
+      setAuthError(null);
+      const provider = new GoogleAuthProvider();
+      try{
+        await signInWithPopup(auth, provider);
+        setIsAuthLoading(false);
+
+        // if(user?.role);
+
+        
+      }catch(err){
+        console.error("Google Sign in error:", err);
+        if (err instanceof Error) {
+          setAuthError(err.message);
+        } else {
+          setAuthError("Failed to authenticate. Please check your connection and try again.");
+        }
+      }
       
     } catch (error) {
       console.error("Login error:", error);

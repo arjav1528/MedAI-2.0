@@ -1,10 +1,16 @@
 "use client";
 
+import { useAuth } from "@/lib/AuthContext";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 import { Oleo_Script } from "next/font/google";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 
 const oleo = Oleo_Script({
   weight: ['400'],
@@ -13,12 +19,21 @@ const oleo = Oleo_Script({
 });
 
 export default function ClinianHomePage() {
+  const router = useRouter();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if(user === null){
+      router.push("/auth");
+    }
+    else if(user.role === 'patient'){
+      router.push("/patient");
+    }
+  }, [user,router])
+  
+
   const date = new Date();
-  const pfpUrl = "https://images.unsplash.com/photo-1629913660084-4b3b3b3b3b3b";
-  const user = {
-    displayName: "John Doe",
-    pfpUrl
-  };
+  
   // Format date string as "Month Day"
   const month = date.toLocaleString('default', { month: 'long' });
   const day = date.getDate();
@@ -37,7 +52,14 @@ export default function ClinianHomePage() {
   
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Handle authentication
+  const handleSignOut = async () => {
+    try{
+      await signOut(auth);
+      router.push("/auth");
+    }catch(err){
+      console.error(err);
+    }
+  }
 
   
 
@@ -102,7 +124,7 @@ export default function ClinianHomePage() {
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                 >
                   {user?.pfpUrl ? (
-                    <img 
+                    <Image 
                       src={user.pfpUrl} 
                       alt="Profile" 
                       className="h-10 w-10 object-cover"
@@ -129,8 +151,8 @@ export default function ClinianHomePage() {
                     </Link>
                     <button 
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => {
-                        toast.success("Successfully signed out");
+                      onClick={async () => {
+                        await handleSignOut()
                       }}
                     >
                       <div className="flex items-center">

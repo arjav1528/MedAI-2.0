@@ -1,5 +1,8 @@
 "use client";
 
+import { useAuth } from "@/lib/AuthContext";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 import { Oleo_Script } from "next/font/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,6 +17,15 @@ const oleo = Oleo_Script({
 });
 
 export default function HomePagePatient() {
+  const router = useRouter();
+  const {user} = useAuth();
+  useEffect(() => {
+    if(!user){
+      router.push('/auth');
+    }else if(user.role === "clinician"){
+      router.push('/clinician');
+    }
+  })
   const date = new Date();
   const time = date.getHours();
   //get me a string which displays 'month date'
@@ -33,9 +45,16 @@ export default function HomePagePatient() {
   // References for speech recognition
   const recognitionSymptoms = useRef<any>(null);
   const recognitionInfo = useRef<any>(null);
-  const router = useRouter();
+  
 
-  // Handle authentication redirect in useEffect
+  const handleSignOut = async () => {
+    try{
+      await signOut(auth);
+      router.push('/auth');
+    }catch(err){
+      console.log(err);
+    }
+  }
 
   
   
