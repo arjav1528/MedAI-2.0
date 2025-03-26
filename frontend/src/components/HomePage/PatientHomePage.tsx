@@ -183,7 +183,7 @@ export default function HomePagePatient() {
           <div className="flex justify-between items-center h-15">
             {/* Logo */}
             <div className="flex items-center my-auto">
-                <Link href={`/`}>
+                <Link href={`/home`}>
                     <h1 className={`${oleo.className}`} style={{ fontSize: '40px', fontWeight: 'bold', marginBottom: '16px' }}>
                         <span style={{ color: '#064579' }}>Med</span>
                         <span style={{ color: '#50C878' }}>AI</span>
