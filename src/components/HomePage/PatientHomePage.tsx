@@ -15,6 +15,12 @@ const oleo = Oleo_Script({
 });
 
 export default function HomePagePatient() {
+  const date = new Date();
+  const time = date.getHours();
+  //get me a string which displays 'month date'
+  const month = date.toLocaleString('default', { month: 'long' });
+  const day = date.getDate();
+  const dateStr = `${month} ${day}`;
   // Define all state variables at the top
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -153,9 +159,7 @@ export default function HomePagePatient() {
   };
 
   // Mock user data
-  const mockUser = {
-    name: "Alex"
-  };
+  
 
   return (
     <>
@@ -264,7 +268,7 @@ export default function HomePagePatient() {
                 {/* Content */}
                 <div className="relative z-10 text-white">
                   <h1 className="text-2xl md:text-5xl font-bold mb-2 md:mb-4 drop-shadow-sm">
-                    Hello, {mockUser.name}!
+                    Hello, {user?.displayName} !
                   </h1>
                   <p className="text-lg md:text-2xl opacity-90 drop-shadow-sm max-w-2xl">
                     How can I assist with your health today?
@@ -545,7 +549,7 @@ export default function HomePagePatient() {
                 
                 <div className="rounded-lg overflow-hidden border border-blue-100">
                   <div className="bg-blue-50 p-1 text-center">
-                    <span className="text-xs font-medium text-blue-600 uppercase tracking-wider">March 25</span>
+                    <span className="text-xs font-medium text-blue-600 uppercase tracking-wider">{dateStr}</span>
                   </div>
                   
                   <div className="p-4">
