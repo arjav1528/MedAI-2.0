@@ -6,14 +6,12 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Oleo_Script } from 'next/font/google';
-import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { useRouter } from 'next/navigation';
+import { useContext, useEffect, useRef, useState } from 'react';
 import GoogleIcon from '@mui/icons-material/Google';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '@/lib/firebase';
+import useUser from '@/hooks/useUser';
+import { useRouter } from 'next/navigation';
 
 const oleo = Oleo_Script({
   weight: ['400'],
@@ -22,18 +20,20 @@ const oleo = Oleo_Script({
 });
 
 const AuthPage = () => {
-  // console.log("Env variable", process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
-  // Get auth context and router
+  const router = useRouter();
+  const {user, setUser} = useUser();
   
-  
+  // Move the redirection logic to useEffect
+  useEffect(() => {
+    if(user){
+      router.push("/");
+    }
+  }, [user, router]);
   
   // Add states for button loading and error
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   
-  // Redirect if user is already logged in
-  
-
   // Refs for the bubbles
   let bubble1Ref = useRef<HTMLDivElement>(null);
   let bubble2Ref = useRef<HTMLDivElement>(null);
@@ -96,7 +96,19 @@ const AuthPage = () => {
       setAuthError(null);
 
       const result = await signInWithPopup(auth,provider);
-      console.log(result);
+      if(result.user){
+        const user = {
+          googleId: result.user.uid,
+          displayName: result.user.displayName || "",
+          pfpUrl: result.user.photoURL || "",
+          email: result.user.email || "",
+          role: result.user.email?.endsWith("goa.bits-pilani.ac.in") ? "patient" : "clinician",
+          maxQueries: result.user.email?.endsWith("goa.bits-pilani.ac.in") ? 0 : 5,
+          queries: [],
+        }
+        setUser(user);
+        
+      }
       
     } catch (error) {
       console.error("Login error:", error);

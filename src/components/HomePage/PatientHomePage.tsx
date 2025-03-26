@@ -1,9 +1,10 @@
 "use client";
 
+import useUser from "@/hooks/useUser";
 import { Oleo_Script } from "next/font/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -21,14 +22,22 @@ export default function HomePagePatient() {
   const [isListeningInfo, setIsListeningInfo] = useState(false);
   const [symptoms, setSymptoms] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
   
   // References for speech recognition
   const recognitionSymptoms = useRef<any>(null);
   const recognitionInfo = useRef<any>(null);
-  
   const router = useRouter();
 
   // Handle authentication redirect in useEffect
+  const {user,setUser} = useUser()
+
+  useEffect(() => {
+    if(!user){
+      router.push('/auth');
+    }
+  },[user,router]);
   
 
   useEffect(() => {
@@ -101,6 +110,21 @@ export default function HomePagePatient() {
     };
   }, []);
   
+  // Handle clicks outside of profile dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileDropdownRef.current && 
+          !profileDropdownRef.current.contains(event.target as Node)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [profileDropdownRef]);
+
   // Toggle speech recognition functions
   const toggleListeningSymptoms = () => {
     if (isListeningSymptoms) {
@@ -165,15 +189,46 @@ export default function HomePagePatient() {
             
             {/* Icons container */}
             <div className="flex items-center space-x-3">
-              {/* Notification icon */}
-              
-              
-              {/* Profile icon */}
-              <button className="p-1 rounded-full text-gray-600 hover:text-blue-600 border border-gray-200 hover:border-blue-200 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </button>
+              {/* Profile icon with dropdown */}
+              <div className="relative" ref={profileDropdownRef}>
+                <button 
+                  className="p-1 rounded-full text-gray-600 hover:text-blue-600 border border-gray-200 hover:border-blue-200 transition-colors"
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </button>
+                
+                {/* Profile dropdown menu */}
+                {isProfileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200">
+                    <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Profile
+                      </div>
+                    </Link>
+                    <button 
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => {
+                        setUser(null);
+                        toast.success("Successfully signed out");
+                        router.push('/auth');
+                      }}
+                    >
+                      <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Sign Out
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
