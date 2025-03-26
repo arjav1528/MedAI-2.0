@@ -16,12 +16,16 @@ export interface UserContextType {
 }
 
 export interface Query {
-    id: string;
-    query: string;
+    symptoms: string;
+    bodyTemperature: string | null;
+    duration: string | null;
+    isVerified: boolean | false;
+    additionalInfo: string | null;
+    response: string | null;
     time: string;
     read: boolean;
-    patientId: string;
-    clinicianId: string;
+    patientId: string | null;
+    clinicianId: string | null;
 }
 
 const UserContext = createContext<UserContextType | null>(null);

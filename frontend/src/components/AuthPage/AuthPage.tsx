@@ -11,7 +11,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/AuthContext';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/lib/Firebase/firebase';
 
 const oleo = Oleo_Script({
   weight: ['400'],

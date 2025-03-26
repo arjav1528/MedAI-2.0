@@ -1,7 +1,9 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import { auth } from "@/lib/firebase";
+import addData from "@/lib/Firebase/addData";
+import { auth } from "@/lib/Firebase/firebase";
+import { Query } from "@/lib/models";
 import { signOut } from "firebase/auth";
 import { Oleo_Script } from "next/font/google";
 import Link from "next/link";
@@ -55,6 +57,39 @@ export default function HomePagePatient() {
       console.log(err);
     }
   }
+
+
+  const handleSubmitQuery = async (symptoms : string, bodyTemperature : string, duration : string | null, additionalInfo : string) => {
+    try{
+      const timestamp = new Date().toISOString();
+      if(user){
+        const query : Query = {
+          symptoms : symptoms,
+          bodyTemperature : bodyTemperature,
+          duration : duration,
+          isVerified : false,
+          additionalInfo : additionalInfo,
+          response : null,
+          time : timestamp,
+          read : false,
+          patientId : user.googleId.toString(),
+          clinicianId : null 
+        }
+        user.queries.push(query);
+
+        const {result, error} = await addData('users',user.googleId,user);
+        if(error){
+          console.error("Error adding query: ", error);
+          return;
+        }
+
+      }
+    }catch(err){
+      console.error("Error adding query: ", err);
+    }
+
+  }
+
 
   
   
@@ -196,7 +231,7 @@ export default function HomePagePatient() {
           <div className="flex justify-between items-center h-15">
             {/* Logo */}
             <div className="flex items-center my-auto">
-                <Link href={`/home`}>
+                <Link href={`/`}>
                     <h1 className={`${oleo.className}`} style={{ fontSize: '40px', fontWeight: 'bold', marginBottom: '16px' }}>
                         <span style={{ color: '#064579' }}>Med</span>
                         <span style={{ color: '#50C878' }}>AI</span>
@@ -209,12 +244,22 @@ export default function HomePagePatient() {
               {/* Profile icon with dropdown */}
               <div className="relative" ref={profileDropdownRef}>
                 <button 
-                  className="p-1 rounded-full text-gray-600 hover:text-blue-600 border border-gray-200 hover:border-blue-200 transition-colors"
+                  className="rounded-full text-gray-600 hover:text-blue-600 border border-gray-200 hover:border-blue-200 transition-colors overflow-hidden cursor-pointer"
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+                  {user?.pfpUrl ? (
+                    <img 
+                      src={user.pfpUrl} 
+                      alt="Profile" 
+                      className="h-8 w-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="p-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                  )}
                 </button>
                 
                 {/* Profile dropdown menu */}
@@ -230,7 +275,8 @@ export default function HomePagePatient() {
                     </Link>
                     <button 
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => {
+                      onClick={async () => {
+                        await handleSignOut();
                         toast.success("Successfully signed out");
                       }}
                     >
@@ -279,7 +325,7 @@ export default function HomePagePatient() {
                 {/* Content */}
                 <div className="relative z-10 text-white">
                   <h1 className="text-2xl md:text-5xl font-bold mb-2 md:mb-4 drop-shadow-sm">
-                    Hello, Alex !
+                    Hello, {user?.displayName?.split(' ')[0] || 'there'} !
                   </h1>
                   <p className="text-lg md:text-2xl opacity-90 drop-shadow-sm max-w-2xl">
                     How can I assist with your health today?
@@ -462,7 +508,7 @@ export default function HomePagePatient() {
                         <button 
                           type="submit"
                           className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-sm hover:shadow-md hover:scale-105 flex items-center cursor-pointer"
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             // Prevent default form submission
                             e.preventDefault();
                             
@@ -486,6 +532,11 @@ export default function HomePagePatient() {
                               duration: durationValue,
                               additionalInfo: additionalInfo.trim()
                             };
+                            
+                            let temperatureString = `${formData.temperature || 'N/A'} ${formData.temperatureUnit === 'celsius' ? '°C' : '°F'}`;
+
+
+                            await handleSubmitQuery(formData.symptoms, temperatureString, formData.duration, formData.additionalInfo);
                             
                             console.log('Form data:', formData);
                             

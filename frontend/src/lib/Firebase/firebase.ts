@@ -8,7 +8,7 @@ import {
   setPersistence,
   browserLocalPersistence
 } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { collection, getFirestore } from 'firebase/firestore';
 
 // Explicitly define the Firebase config to avoid potential issues with env variables
 const firebaseConfig = {
@@ -21,4 +21,16 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const queriesCollection = collection(db, 'queries');
+const usersCollection = collection(db, 'users');
+
+export {
+  app,
+  auth,
+  db,
+  queriesCollection,
+  usersCollection
+}
+

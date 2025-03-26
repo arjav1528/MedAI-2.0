@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import { auth } from "@/lib/firebase";
+import { auth } from "@/lib/Firebase/firebase";
 import { signOut } from "firebase/auth";
 import { Oleo_Script } from "next/font/google";
 import Image from "next/image";
@@ -124,11 +124,8 @@ export default function ClinianHomePage() {
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                 >
                   {user?.pfpUrl ? (
-                    <Image 
-                      src={user.pfpUrl} 
-                      alt="Profile" 
-                      className="h-10 w-10 object-cover"
-                    />
+                    <img src={user.pfpUrl} alt="Profile" className="h-8 w-8 rounded-full">
+                    </img>
                   ) : (
                     <div className="p-1">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
