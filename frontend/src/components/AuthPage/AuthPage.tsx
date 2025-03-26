@@ -9,9 +9,6 @@ import { Oleo_Script } from 'next/font/google';
 import { useContext, useEffect, useRef, useState } from 'react';
 import GoogleIcon from '@mui/icons-material/Google';
 import { signInWithPopup } from 'firebase/auth';
-import { auth, provider } from '@/lib/firebase';
-import useUser from '@/hooks/useUser';
-import { useRouter } from 'next/navigation';
 
 const oleo = Oleo_Script({
   weight: ['400'],
@@ -20,15 +17,9 @@ const oleo = Oleo_Script({
 });
 
 const AuthPage = () => {
-  const router = useRouter();
-  const {user, setUser} = useUser();
   
   // Move the redirection logic to useEffect
-  useEffect(() => {
-    if(user){
-      router.push("/home");
-    }
-  }, [user, router]);
+  
   
   // Add states for button loading and error
   const [isAuthLoading, setIsAuthLoading] = useState(false);
@@ -43,9 +34,7 @@ const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   // Toggle password visibility
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  
 
   // Function to move bubbles to random positions
   useEffect(() => {
@@ -91,24 +80,6 @@ const AuthPage = () => {
   const handleGoogleSignIn = async () => {
     try {
       console.log("Attempting Google sign in...");
-
-      setIsAuthLoading(true);
-      setAuthError(null);
-
-      const result = await signInWithPopup(auth,provider);
-      if(result.user){
-        const user = {
-          googleId: result.user.uid,
-          displayName: result.user.displayName || "",
-          pfpUrl: result.user.photoURL || "",
-          email: result.user.email || "",
-          role: result.user.email?.endsWith("goa.bits-pilani.ac.in") ? "patient" : "clinician",
-          maxQueries: result.user.email?.endsWith("goa.bits-pilani.ac.in") ? 0 : 5,
-          queries: [],
-        }
-        setUser(user);
-        
-      }
       
     } catch (error) {
       console.error("Login error:", error);

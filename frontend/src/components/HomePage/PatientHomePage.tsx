@@ -1,6 +1,5 @@
 "use client";
 
-import useUser from "@/hooks/useUser";
 import { Oleo_Script } from "next/font/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -37,13 +36,8 @@ export default function HomePagePatient() {
   const router = useRouter();
 
   // Handle authentication redirect in useEffect
-  const {user,setUser} = useUser()
 
-  useEffect(() => {
-    if(!user){
-      router.push('/');
-    }
-  },[user,router]);
+  
   
 
   useEffect(() => {
@@ -218,9 +212,7 @@ export default function HomePagePatient() {
                     <button 
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => {
-                        setUser(null);
                         toast.success("Successfully signed out");
-                        router.push('/auth');
                       }}
                     >
                       <div className="flex items-center">
@@ -268,7 +260,7 @@ export default function HomePagePatient() {
                 {/* Content */}
                 <div className="relative z-10 text-white">
                   <h1 className="text-2xl md:text-5xl font-bold mb-2 md:mb-4 drop-shadow-sm">
-                    Hello, {user?.displayName} !
+                    Hello, Alex !
                   </h1>
                   <p className="text-lg md:text-2xl opacity-90 drop-shadow-sm max-w-2xl">
                     How can I assist with your health today?

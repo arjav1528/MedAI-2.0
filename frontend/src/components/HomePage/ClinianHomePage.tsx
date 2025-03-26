@@ -1,9 +1,7 @@
 "use client";
 
-import useUser from "@/hooks/useUser";
 import { Oleo_Script } from "next/font/google";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,10 +14,16 @@ const oleo = Oleo_Script({
 
 export default function ClinianHomePage() {
   const date = new Date();
+  const pfpUrl = "https://images.unsplash.com/photo-1629913660084-4b3b3b3b3b3b";
+  const user = {
+    displayName: "John Doe",
+    pfpUrl
+  };
   // Format date string as "Month Day"
   const month = date.toLocaleString('default', { month: 'long' });
   const day = date.getDate();
   const dateStr = `${month} ${day}`;
+  
   
   // State variables
   const [isLoaded, setIsLoaded] = useState(false);
@@ -32,16 +36,10 @@ export default function ClinianHomePage() {
   const [filter, setFilter] = useState("all");
   
   const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   // Handle authentication
-  const { user, setUser } = useUser();
 
-  useEffect(() => {
-    if (!user || user.role !== 'clinician') {
-      router.push('/');
-    }
-  }, [user, router]);
+  
 
   useEffect(() => {
     // Animation trigger
@@ -132,9 +130,7 @@ export default function ClinianHomePage() {
                     <button 
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => {
-                        setUser(null);
                         toast.success("Successfully signed out");
-                        router.push('/auth');
                       }}
                     >
                       <div className="flex items-center">
