@@ -8,7 +8,7 @@ import HomePagePatient from "@/components/HomePage/PatientHomePage";
 export default function PatientHomePage() {
   return (
     <>
-      <AuthPage />
+      <HomePagePatient />
     </>
     
   );

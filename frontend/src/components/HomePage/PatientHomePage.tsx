@@ -41,7 +41,7 @@ export default function HomePagePatient() {
 
   useEffect(() => {
     if(!user){
-      router.push('/auth');
+      router.push('/');
     }
   },[user,router]);
   

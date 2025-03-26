@@ -26,7 +26,7 @@ const AuthPage = () => {
   // Move the redirection logic to useEffect
   useEffect(() => {
     if(user){
-      router.push("/");
+      router.push("/home");
     }
   }, [user, router]);
   
