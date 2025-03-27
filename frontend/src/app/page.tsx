@@ -18,6 +18,8 @@ export default function Home() {
       } else {
         router.push("/clinician");
       }
+    }else{
+      router.push("/auth");
     }
   })
 

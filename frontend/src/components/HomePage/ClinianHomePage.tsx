@@ -88,6 +88,8 @@ export default function ClinianHomePage() {
     ? pendingCases 
     : pendingCases.filter(c => c.priority === filter);
 
+  console.log(user);
+
   return (
     <>
       <ToastContainer
@@ -108,7 +110,7 @@ export default function ClinianHomePage() {
           <div className="flex justify-between items-center h-15">
             {/* Logo */}
             <div className="flex items-center my-auto">
-                <Link href={`/home`}>
+                <Link href={`#`}>
                     <h1 className={`${oleo.className}`} style={{ fontSize: '40px', fontWeight: 'bold', marginBottom: '16px' }}>
                         <span style={{ color: '#064579' }}>Med</span>
                         <span style={{ color: '#50C878' }}>AI</span>

@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/AuthContext";
 import addData from "@/lib/Firebase/addData";
 import { auth } from "@/lib/Firebase/firebase";
 import { Query } from "@/lib/models";
+import { tips } from "@/lib/tips";
 import { signOut } from "firebase/auth";
 import { Oleo_Script } from "next/font/google";
 import Link from "next/link";
@@ -34,6 +35,8 @@ export default function HomePagePatient() {
   const month = date.toLocaleString('default', { month: 'long' });
   const day = date.getDate();
   const dateStr = `${month} ${day}`;
+  const tipTitle = tips[day % tips.length].title;
+  const tipContent = tips[day % tips.length].text;
   // Define all state variables at the top
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -207,6 +210,7 @@ export default function HomePagePatient() {
   };
 
   // Mock user data
+  console.log(user);
   
 
   return (
@@ -615,11 +619,9 @@ export default function HomePagePatient() {
                   </div>
                   
                   <div className="p-4">
-                    <h3 className="font-medium text-gray-900 text-lg">Stay Hydrated</h3>
+                    <h3 className="font-medium text-gray-900 text-lg">{tipTitle}</h3>
                     <p className="text-gray-600 mt-2">
-                      Drinking adequate water daily helps maintain body temperature, lubricate joints, 
-                      and remove waste. Aim for 8 glasses (about 2 liters) of water daily, and 
-                      more during exercise or hot weather.
+                      {tipContent}
                     </p>
                     
                     <div className="mt-4 flex items-center text-sm text-blue-600">
