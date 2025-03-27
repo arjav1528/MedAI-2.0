@@ -1,8 +1,8 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import addData from "@/lib/Firebase/addData";
 import { auth } from "@/lib/Firebase/firebase";
+import { addData } from "@/lib/Firebase/firestore";
 import { Query } from "@/lib/models";
 import { tips } from "@/lib/tips";
 import { signOut } from "firebase/auth";
@@ -76,7 +76,8 @@ export default function HomePagePatient() {
           time : timestamp,
           read : false,
           patientId : user.googleId.toString(),
-          clinicianId : null 
+          clinicianId : null,
+          priority : "Medium"
         }
         user.queries.push(query);
 

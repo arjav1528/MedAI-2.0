@@ -26,6 +26,7 @@ export interface Query {
     read: boolean;
     patientId: string | null;
     clinicianId: string | null;
+    priority : string
 }
 
 const UserContext = createContext<UserContextType | null>(null);
