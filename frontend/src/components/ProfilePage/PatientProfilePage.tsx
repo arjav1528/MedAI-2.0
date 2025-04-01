@@ -110,6 +110,7 @@ export default function PatientProfilePage() {
   }, [profileDropdownRef]);
 
   const handleSignOut = () => {
+    
     toast.success("Successfully signed out");
     router.push('/auth');
   };

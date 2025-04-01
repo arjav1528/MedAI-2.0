@@ -22,6 +22,7 @@ const oleo = Oleo_Script({
 export default function HomePagePatient() {
   const router = useRouter();
   const {user} = useAuth();
+  const {setUser} = useAuth();
   useEffect(() => {
     if(!user){
       router.push('/auth');
@@ -55,7 +56,9 @@ export default function HomePagePatient() {
   const handleSignOut = async () => {
     try{
       await signOut(auth);
+      setUser(null);
       router.push('/auth');
+      
     }catch(err){
       console.log(err);
     }
